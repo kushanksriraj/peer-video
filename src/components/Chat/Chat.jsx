@@ -51,16 +51,13 @@ const state = [
 ];
 
 const ScrollArea = styled.div`
-  border: 1px solid red;
   height: 25vh;
   max-height: 400px;
   position: absolute;
   width: 170px;
   bottom: 30px;
-
   -ms-overflow-style: none;
   scrollbar-width: none;
-
   overflow-y: scroll;
 `;
 
@@ -69,13 +66,14 @@ const Bubble = styled.div`
   margin: 0.5rem;
   margin-left: 0.25rem;
   border-radius: 2px;
-  padding: 0.25rem;
+  padding: 0.2rem;
 `;
 
 // if translation is present then gray out the text
 
 const Text = styled.div`
-  font-size: 12px;
+  font-size: ${(props) => (props.isTranslation ? "10px" : "12px")};
+  color: ${(props) => (props.isTranslation ? "#626262" : "black")};
 `;
 
 const Translation = styled.div`
@@ -98,12 +96,11 @@ export const Chat = () => {
 
     messageList.forEach((message, index) => {
       if (index !== messageList.length - 1) {
+        const isTranslation = message?.translation;
         list.push(
           <Bubble>
-            {message?.translation && (
-              <Translation>{message.translation}</Translation>
-            )}
-            <Text>{message.text}</Text>
+            {isTranslation && <Translation>{message.translation}</Translation>}
+            <Text isTranslation={isTranslation}>{message.text}</Text>
           </Bubble>
         );
       }
@@ -111,10 +108,12 @@ export const Chat = () => {
 
     const last = messageList[messageList.length - 1];
 
+    const isTranslation = last?.translation;
+
     list.push(
       <Bubble ref={lastRef}>
-        {last?.translation && <Translation>{last.translation}</Translation>}
-        <Text>{last.text}</Text>
+        {isTranslation && <Translation>{last.translation}</Translation>}
+        <Text isTranslation={isTranslation}>{last.text}</Text>
       </Bubble>
     );
     return list;
