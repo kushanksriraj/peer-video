@@ -64,8 +64,14 @@ const replaceStream = (peerConnection, mediaStream) => {
 };
 
 export const Settings = () => {
+  const { translateState } = usePeer();
+
   const [cameraOptionList, setCameraOptionList] = useState([]);
   const [micOptionList, setMicOptionList] = useState([]);
+
+  const [localTranslateState, setLocalTranslateState] = useState(
+    translateState.current.state
+  );
 
   const {
     setCameraDeviceId,
@@ -90,6 +96,11 @@ export const Settings = () => {
       setMicDeviceId(micList[0].deviceId);
     })();
   }, []);
+
+  const toggleTranslate = () => {
+    translateState.current.state = !translateState.current.state;
+    setLocalTranslateState(prev => !prev);
+  };
 
   const handleCameraChange = async (e) => {
     const cameraId = e.target.value;
@@ -150,7 +161,9 @@ export const Settings = () => {
   return (
     <Wrapper>
       <ControlWrapper>
-        <Button>Start Translation</Button>
+        <Button onClick={toggleTranslate}>
+          {localTranslateState ? "Stop Translation" : "Start Translation"}
+        </Button>
       </ControlWrapper>
 
       <SelectorWrapper>

@@ -46,15 +46,39 @@ const PeerVideo = styled.video`
 `;
 
 export const VideoStream = () => {
-  const { peerVideo } = usePeer();
+  const { peerVideo, buttonState, setButtonState } = usePeer();
+
+  const endCall = () => {
+    window.location.reload();
+  };
+
+  const toggleAudioState = () => {
+    if (buttonState.peerAudio) {
+      peerVideo.current.muted = true;
+      setButtonState((prev) => ({
+        ...prev,
+        peerAudio: false,
+      }));
+    } else {
+      peerVideo.current.muted = false;
+      setButtonState((prev) => ({
+        ...prev,
+        peerAudio: true,
+      }));
+    }
+  };
 
   return (
     <Wrapper>
       <MyStream />
 
       <ControlWrapper>
-        <Button variant="end">End</Button>
-        <Button>Audio off</Button>
+        <Button variant="end" onClick={endCall}>
+          End
+        </Button>
+        <Button onClick={toggleAudioState}>
+          {buttonState.peerAudio ? "Audio off" : "Audio on"}
+        </Button>
       </ControlWrapper>
 
       <PeerVideo

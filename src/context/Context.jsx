@@ -36,6 +36,25 @@ function decode(str) {
   return decodeURIComponent(escape(window.atob(str)));
 }
 
+function encode(str) {
+  return window.btoa(unescape(encodeURIComponent(str)));
+}
+
+const replaceStream = (peerConnection, mediaStream) => {
+  peerConnection.getSenders().forEach((sender) => {
+    if (sender.track.kind === "audio") {
+      if (mediaStream.getAudioTracks().length > 0) {
+        sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+      }
+    }
+    if (sender.track.kind === "video") {
+      if (mediaStream.getVideoTracks().length > 0) {
+        sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+      }
+    }
+  });
+};
+
 export const ContextProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("");
@@ -43,12 +62,13 @@ export const ContextProvider = ({ children }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [cameraDeviceId, setCameraDeviceId] = useState("null");
   const [micDeviceId, setMicDeviceId] = useState(null);
-  const [translateState, setTranslateState] = useState(false);
+
   const [messageList, setMessageList] = useState([]);
+  const [message, setMessage] = useState("");
   const [buttonState, setButtonState] = useState({
     // true => on, false => off
     myMic: true,
-    peerMic: true,
+    peerAudio: true,
     myVideo: true,
   });
   const connection = useRef(null);
@@ -56,6 +76,8 @@ export const ContextProvider = ({ children }) => {
   const getUserMedia = useRef(null);
   const myVideo = useRef(null);
   const peerVideo = useRef(null);
+
+  const translateState = useRef({ state: false });
 
   useEffect(() => {
     peer.on("open", (id) => {
@@ -66,28 +88,6 @@ export const ContextProvider = ({ children }) => {
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||
       navigator.mozGetUserMedia;
-  }, []);
-
-  useEffect(() => {
-    peer.on("call", function (call) {
-      connection.current = call;
-
-      call.on("data", handleMessage);
-
-      getUserMedia.current(
-        { video: true, audio: true },
-        function (stream) {
-          call.answer(stream);
-          myVideo.current.srcObject = stream;
-          call.on("stream", function (remoteStream) {
-            peerVideo.current.srcObject = remoteStream;
-          });
-        },
-        function (err) {
-          console.log("Failed to get local stream", err);
-        }
-      );
-    });
   }, []);
 
   useEffect(() => {
@@ -116,13 +116,39 @@ export const ContextProvider = ({ children }) => {
             username: myPeerId,
           },
         });
-
         textChannel.current.on("data", handleMessage);
       }
     });
   }, []);
 
-  function handleMessage(data) {
+  useEffect(() => {
+    peer.on("call", function (call) {
+      connection.current = call;
+      call.on("data", handleMessage);
+      getUserMedia.current(
+        { video: true, audio: true },
+        function (stream) {
+          call.answer(stream);
+          myVideo.current.srcObject = stream;
+          call.on("stream", function (remoteStream) {
+            peerVideo.current.srcObject = remoteStream;
+          });
+        },
+        function (err) {
+          console.log("Failed to get local stream", err);
+        }
+      );
+    });
+  }, []);
+
+  useEffect(() => {
+    peer.on("connection", function (conn) {
+      textChannel.current = conn;
+      conn.on("data", handleMessage);
+    });
+  }, []);
+
+  async function handleMessage(data) {
     if (data.type === DATA_TYPE.TYPING_STARTED) {
       setIsTyping(true);
       return;
@@ -135,57 +161,33 @@ export const ContextProvider = ({ children }) => {
 
     if (data.type === DATA_TYPE.MESSAGE) {
       let text = decode(data.text);
+      console.log("HERE", translateState.current.state);
+      if (translateState.current.state) {
+        const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=${API_KEY}&text=${text}&lang=en-ru`;
+        const res = await fetch(url);
+        const resData = await res.json();
+        const eng = text;
+        text = resData.text[0];
 
-      (async () => {
-        if (translateState) {
-          const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=${API_KEY}&text=${text}&lang=en-ru`;
-          const res = await fetch(url);
-          const resData = await res.json();
-          const eng = text;
-          text = resData.text[0];
-
-          if (data.from !== myPeerId) {
-            // const p1 = document.createElement("P");
-            // const p2 = document.createElement("P");
-            // const text1 = document.createTextNode(eng);
-            // const text2 = document.createTextNode(text);
-
-            // p1.appendChild(text1);
-            // p2.appendChild(text2);
-
-            // const li = document.createElement("LI");
-
-            // li.appendChild(p1);
-            // li.appendChild(p2);
-
-            // li.className = "she";
-            // li.style.display = "block";
-
-            // msgList.appendChild(li);
-            setMessageList((prev) => [
-              ...prev,
-              {
-                text: eng,
-                translation: text,
-              },
-            ]);
-          }
-        } else {
-          if (data.from !== myPeerId) {
-            // const li = document.createElement("LI");
-            // const textNode = document.createTextNode(text);
-            // li.appendChild(textNode);
-            // li.className = "she";
-            // msgList.appendChild(li);
-            setMessageList((prev) => [
-              ...prev,
-              {
-                text,
-              },
-            ]);
-          }
+        if (data.from !== myPeerId) {
+          setMessageList((prev) => [
+            ...prev,
+            {
+              text: eng,
+              translation: text,
+            },
+          ]);
         }
-      })();
+      } else {
+        if (data.from !== myPeerId) {
+          setMessageList((prev) => [
+            ...prev,
+            {
+              text,
+            },
+          ]);
+        }
+      }
     }
   }
 
@@ -195,6 +197,113 @@ export const ContextProvider = ({ children }) => {
       id: myPeerId,
     });
   };
+
+  const sendMsg = (e) => {
+    e.preventDefault();
+
+    const text = message;
+
+    const typing_info = {
+      type: DATA_TYPE.TYPING_STOPPED,
+    };
+
+    const data = {
+      type: DATA_TYPE.MESSAGE,
+      from: myPeerId,
+      text: encode(text),
+    };
+    try {
+      textChannel.current.send(typing_info);
+      textChannel.current.send(data);
+    } catch (e) {
+      console.log(e);
+    }
+
+    setMessageList((prev) => [
+      ...prev,
+      {
+        text,
+      },
+    ]);
+
+    setMessage("");
+  };
+
+  const updateMessage = (e) => {
+    setMessage(e.target.value);
+
+    const data = {
+      type: DATA_TYPE.TYPING_STARTED,
+    };
+    try {
+      textChannel.current.send(data);
+    } catch (e) {
+      console.log(e);
+    }
+
+    if (e.target.value === "") {
+      const data = {
+        type: DATA_TYPE.TYPING_STOPPED,
+      };
+      try {
+        textChannel.current.send(data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  async function toggleMic(state) {
+    if (state) {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: cameraDeviceId },
+        audio: { deviceId: micDeviceId },
+      });
+      stream.getAudioTracks()[0].enabled = true;
+      try {
+        replaceStream(connection.current.peerConnection, stream);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: cameraDeviceId },
+        audio: { deviceId: micDeviceId },
+      });
+      stream.getAudioTracks()[0].enabled = false;
+      try {
+        replaceStream(connection.current.peerConnection, stream);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
+  async function toggleVideo(state) {
+    if (state) {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: cameraDeviceId },
+        audio: { deviceId: micDeviceId },
+      });
+      stream.getVideoTracks()[0].enabled = true;
+      try {
+        replaceStream(connection.current.peerConnection, stream);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: cameraDeviceId },
+        audio: { deviceId: micDeviceId },
+      });
+      stream.getVideoTracks()[0].enabled = false;
+      try {
+        replaceStream(connection.current.peerConnection, stream);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
 
   return (
     <PeerContext.Provider
@@ -212,6 +321,17 @@ export const ContextProvider = ({ children }) => {
         connection,
         peerVideo,
         messageList,
+        translateState,
+        myPeerId,
+        sendMsg,
+        message,
+        setMessage,
+        updateMessage,
+        isTyping,
+        buttonState,
+        setButtonState,
+        toggleMic,
+        toggleVideo
       }}
     >
       {children}

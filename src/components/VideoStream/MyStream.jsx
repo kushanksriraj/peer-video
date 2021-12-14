@@ -1,3 +1,4 @@
+import { useState } from "react";
 import styled from "styled-components";
 import { usePeer } from "../../context/Context";
 
@@ -43,8 +44,51 @@ const MyVideo = styled.video`
 `;
 
 export const MyStream = () => {
+  const { myVideo, buttonState, setButtonState, toggleMic, toggleVideo } =
+    usePeer();
+  const [loading, setLoading] = useState(false);
 
-  const {myVideo} = usePeer();
+  const toggleMyMicState = async () => {
+    if (buttonState.myMic) {
+      setLoading(true);
+      await toggleMic(false);
+      setButtonState((prev) => ({
+        ...prev,
+        myMic: false,
+      }));
+      setLoading(false);
+    } else {
+      setLoading(true);
+      await toggleMic(true);
+      setButtonState((prev) => ({
+        ...prev,
+        myMic: true,
+      }));
+      setLoading(false);
+    }
+  };
+
+  const toggleMyVideoState = async () => {
+    if (buttonState.myVideo) {
+      setLoading(true);
+      await toggleVideo(false);
+      setButtonState((prev) => ({
+        ...prev,
+        myVideo: false,
+      }));
+      setLoading(false);
+      myVideo.current.style.display = "none";
+    } else {
+      setLoading(true);
+      await toggleVideo(true);
+      setButtonState((prev) => ({
+        ...prev,
+        myVideo: true,
+      }));
+      setLoading(false);
+      myVideo.current.style.display = "block";
+    }
+  };
 
   return (
     <Wrapper>
@@ -55,9 +99,13 @@ export const MyStream = () => {
         width="100px"
         height="130px"
       ></MyVideo>
-	  <ControlWrapper>
-        <Button variant="end">Mute</Button>
-        <Button>Video off</Button>
+      <ControlWrapper>
+        <Button variant="end" onClick={toggleMyMicState} disabled={loading}>
+          {buttonState.myMic ? "Mute" : "Unmute"}
+        </Button>
+        <Button onClick={toggleMyVideoState} disabled={loading}>
+          {buttonState.myVideo ? "Video off" : "Video on"}
+        </Button>
       </ControlWrapper>
     </Wrapper>
   );

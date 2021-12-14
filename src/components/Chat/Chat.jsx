@@ -1,6 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { usePeer } from "../../context/Context";
+
+const DATA_TYPE = {
+  MESSAGE: "MESSAGE",
+  TYPING_STARTED: "TYPING_STARTED",
+  TYPING_STOPPED: "TYPING_STOPPED",
+};
 
 const Wrapper = styled.div`
   border: 1px solid black;
@@ -63,10 +69,12 @@ const Translation = styled.div`
   font-size: 12px;
 `;
 
+const Form = styled.form``;
+
 export const Chat = () => {
   const lastRef = useRef(null);
 
-  const { messageList } = usePeer();
+  const { messageList, sendMsg, message, updateMessage, isTyping } = usePeer();
 
   useEffect(() => {
     if (lastRef.current) {
@@ -90,24 +98,35 @@ export const Chat = () => {
     });
 
     const last = messageList[messageList.length - 1];
-
     const isTranslation = last?.translation;
 
-    last && list.push(
-      <Bubble ref={lastRef}>
-        {isTranslation && <Translation>{last.translation}</Translation>}
-        <Text isTranslation={isTranslation}>{last.text}</Text>
-      </Bubble>
-    );
+    last &&
+      list.push(
+        <Bubble ref={lastRef}>
+          {isTranslation && <Translation>{last.translation}</Translation>}
+          <Text isTranslation={isTranslation}>{last.text}</Text>
+        </Bubble>
+      );
+
+    if (isTyping) {
+      list.push(
+        <Bubble ref={lastRef}>
+          <Text>Typing...</Text>
+        </Bubble>
+      );
+    }
+
     return list;
   };
 
   return (
     <Wrapper>
       <ScrollArea className="scroll-hide">{renderBubbles()}</ScrollArea>
-      <TextField type="text" />
-      {/* Show typing based on isTyping */}
-      <Button onClick={() => {}}>&gt;</Button>
+      <Form onSubmit={sendMsg}>
+        <TextField type="text" value={message} onChange={updateMessage} />
+        {/* Show typing based on isTyping */}
+        <Button type="submit">&gt;</Button>
+      </Form>
     </Wrapper>
   );
 };
