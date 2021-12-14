@@ -51,10 +51,10 @@ const state = [
 ];
 
 const ScrollArea = styled.div`
-  height: 25vh;
-  max-height: 400px;
+  height: fit-content;
+  max-height: 140px;
   position: absolute;
-  width: 170px;
+  width: fit-content;
   bottom: 30px;
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -66,12 +66,12 @@ const Bubble = styled.div`
   margin: 0.5rem;
   margin-left: 0.25rem;
   border-radius: 2px;
-  padding: 0.2rem;
+  padding: 2px 4px;
+  width: fit-content;
 `;
 
-// if translation is present then gray out the text
-
 const Text = styled.div`
+  margin-top: -2px;
   font-size: ${(props) => (props.isTranslation ? "10px" : "12px")};
   color: ${(props) => (props.isTranslation ? "#626262" : "black")};
 `;
