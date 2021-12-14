@@ -2,12 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { usePeer } from "../../context/Context";
 
-const DATA_TYPE = {
-  MESSAGE: "MESSAGE",
-  TYPING_STARTED: "TYPING_STARTED",
-  TYPING_STOPPED: "TYPING_STOPPED",
-};
-
 const Wrapper = styled.div`
   border: 1px solid black;
   width: 50vw;
@@ -124,7 +118,6 @@ export const Chat = () => {
       <ScrollArea className="scroll-hide">{renderBubbles()}</ScrollArea>
       <Form onSubmit={sendMsg}>
         <TextField type="text" value={message} onChange={updateMessage} />
-        {/* Show typing based on isTyping */}
         <Button type="submit">&gt;</Button>
       </Form>
     </Wrapper>

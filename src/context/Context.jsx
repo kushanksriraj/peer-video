@@ -1,82 +1,61 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  DATA_TYPE,
+  decode,
+  encode,
+  replaceStream,
+  SOCKET_URL,
+  STUN_URL,
+  TURN_URL,
+  TURN_USERNAME,
+  TURN_CREDENTIAL,
+  PEER_SERVER_URL,
+  PEER_SERVER_PORT,
+  PEER_SERVER_PATH,
+  getTranslationURL,
+} from "../helper";
 
 const PeerContext = createContext();
 
-const API_KEY =
-  "trnsl.1.1.20211212T161217Z.0831f8bca96760d5.2c7f958d368ca87a6c7382819e8a13461ccdde94";
-
-const DB_API = "https://peer-db.kushanksriraj.repl.co/";
-
-const DATA_TYPE = {
-  MESSAGE: "MESSAGE",
-  TYPING_STARTED: "TYPING_STARTED",
-  TYPING_STOPPED: "TYPING_STOPPED",
-};
-
-const socket = window.io("https://peer-socket-1.kushanksriraj.repl.co");
+const socket = window.io(SOCKET_URL);
 
 const peer = new window.Peer({
   config: {
     iceServers: [
-      { url: "stun:numb.viagenie.ca:3478" },
+      { url: STUN_URL },
       {
-        url: "turn:numb.viagenie.ca:3478",
-        username: "shreeraj157@gmail.com",
-        credential: "Qwerty@123",
+        url: TURN_URL,
+        username: TURN_USERNAME,
+        credential: TURN_CREDENTIAL,
       },
     ],
-    host: "peer-server.kushanksriraj.repl.co",
-    port: 8080,
-    path: "/signaling",
+    host: PEER_SERVER_URL,
+    port: PEER_SERVER_PORT,
+    path: PEER_SERVER_PATH,
     debug: true,
   },
 });
 
-function decode(str) {
-  return decodeURIComponent(escape(window.atob(str)));
-}
-
-function encode(str) {
-  return window.btoa(unescape(encodeURIComponent(str)));
-}
-
-const replaceStream = (peerConnection, mediaStream) => {
-  peerConnection.getSenders().forEach((sender) => {
-    if (sender.track.kind === "audio") {
-      if (mediaStream.getAudioTracks().length > 0) {
-        sender.replaceTrack(mediaStream.getAudioTracks()[0]);
-      }
-    }
-    if (sender.track.kind === "video") {
-      if (mediaStream.getVideoTracks().length > 0) {
-        sender.replaceTrack(mediaStream.getVideoTracks()[0]);
-      }
-    }
-  });
-};
-
 export const ContextProvider = ({ children }) => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [message, setMessage] = useState("");
   const [username, setUsername] = useState("");
   const [myPeerId, setMyPeerId] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
-  const [cameraDeviceId, setCameraDeviceId] = useState("null");
-  const [micDeviceId, setMicDeviceId] = useState(null);
-
+  const [mirror, setMirror] = useState(false);
   const [messageList, setMessageList] = useState([]);
-  const [message, setMessage] = useState("");
+  const [micDeviceId, setMicDeviceId] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [cameraDeviceId, setCameraDeviceId] = useState(null);
   const [buttonState, setButtonState] = useState({
-    // true => on, false => off
     myMic: true,
     peerAudio: true,
     myVideo: true,
   });
+  const myVideo = useRef(null);
+  const peerVideo = useRef(null);
   const connection = useRef(null);
   const textChannel = useRef(null);
   const getUserMedia = useRef(null);
-  const myVideo = useRef(null);
-  const peerVideo = useRef(null);
-
   const translateState = useRef({ state: false });
 
   useEffect(() => {
@@ -149,6 +128,18 @@ export const ContextProvider = ({ children }) => {
   }, []);
 
   async function handleMessage(data) {
+
+    if (data.type === DATA_TYPE.MIRROR_ON) {
+      peerVideo.current.className = 'mirror';
+      return;
+    }
+
+    if (data.type === DATA_TYPE.MIRROR_OFF) {
+      peerVideo.current.className = '';
+      return;
+    }
+
+
     if (data.type === DATA_TYPE.TYPING_STARTED) {
       setIsTyping(true);
       return;
@@ -163,7 +154,7 @@ export const ContextProvider = ({ children }) => {
       let text = decode(data.text);
       console.log("HERE", translateState.current.state);
       if (translateState.current.state) {
-        const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=${API_KEY}&text=${text}&lang=en-ru`;
+        const url = getTranslationURL(text);
         const res = await fetch(url);
         const resData = await res.json();
         const eng = text;
@@ -331,7 +322,8 @@ export const ContextProvider = ({ children }) => {
         buttonState,
         setButtonState,
         toggleMic,
-        toggleVideo
+        toggleVideo,
+        textChannel
       }}
     >
       {children}

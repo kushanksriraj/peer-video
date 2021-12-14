@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { usePeer } from "../../context/Context";
+import { replaceStream } from "../../helper";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -48,31 +49,7 @@ const SelectorWrapper = styled.div`
   justify-content: space-around;
 `;
 
-const replaceStream = (peerConnection, mediaStream) => {
-  peerConnection.getSenders().forEach((sender) => {
-    if (sender.track.kind === "audio") {
-      if (mediaStream.getAudioTracks().length > 0) {
-        sender.replaceTrack(mediaStream.getAudioTracks()[0]);
-      }
-    }
-    if (sender.track.kind === "video") {
-      if (mediaStream.getVideoTracks().length > 0) {
-        sender.replaceTrack(mediaStream.getVideoTracks()[0]);
-      }
-    }
-  });
-};
-
 export const Settings = () => {
-  const { translateState } = usePeer();
-
-  const [cameraOptionList, setCameraOptionList] = useState([]);
-  const [micOptionList, setMicOptionList] = useState([]);
-
-  const [localTranslateState, setLocalTranslateState] = useState(
-    translateState.current.state
-  );
-
   const {
     setCameraDeviceId,
     setMicDeviceId,
@@ -80,7 +57,15 @@ export const Settings = () => {
     micDeviceId,
     myVideo,
     connection,
+    translateState,
+    buttonState
   } = usePeer();
+
+  const [micOptionList, setMicOptionList] = useState([]);
+  const [cameraOptionList, setCameraOptionList] = useState([]);
+  const [localTranslateState, setLocalTranslateState] = useState(
+    translateState.current.state
+  );
 
   useEffect(() => {
     (async () => {
@@ -99,7 +84,7 @@ export const Settings = () => {
 
   const toggleTranslate = () => {
     translateState.current.state = !translateState.current.state;
-    setLocalTranslateState(prev => !prev);
+    setLocalTranslateState((prev) => !prev);
   };
 
   const handleCameraChange = async (e) => {
@@ -110,6 +95,10 @@ export const Settings = () => {
       video: { deviceId: cameraId },
       audio: { deviceId: micDeviceId },
     });
+
+    stream.getAudioTracks()[0].enabled = buttonState.myMic;
+    stream.getVideoTracks()[0].enabled = buttonState.myVideo;
+
     myVideo.current.srcObject = stream;
     try {
       replaceStream(connection.current.peerConnection, stream);
@@ -126,6 +115,10 @@ export const Settings = () => {
       video: { deviceId: cameraDeviceId },
       audio: { deviceId: micId },
     });
+
+    stream.getAudioTracks()[0].enabled = buttonState.myMic;
+    stream.getVideoTracks()[0].enabled = buttonState.myVideo;
+
     myVideo.current.srcObject = stream;
     try {
       replaceStream(connection.current.peerConnection, stream);

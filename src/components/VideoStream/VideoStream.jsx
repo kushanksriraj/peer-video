@@ -71,7 +71,6 @@ export const VideoStream = () => {
   return (
     <Wrapper>
       <MyStream />
-
       <ControlWrapper>
         <Button variant="end" onClick={endCall}>
           End
@@ -80,7 +79,6 @@ export const VideoStream = () => {
           {buttonState.peerAudio ? "Audio off" : "Audio on"}
         </Button>
       </ControlWrapper>
-
       <PeerVideo
         ref={peerVideo}
         autoPlay

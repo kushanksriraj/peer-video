@@ -5,11 +5,8 @@ import {
   Settings,
   Heading,
 } from "./components";
-// import { usePeer } from "./context/Context";
 
 function App() {
-  // const { isConnected, setIsConnected } = usePeer();
-
   return (
     <div>
       <Heading />

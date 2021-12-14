@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { usePeer } from "../../context/Context";
+import {DATA_TYPE} from '../../helper';
 
 const Wrapper = styled.div`
   display: flex;
@@ -44,9 +45,13 @@ const MyVideo = styled.video`
 `;
 
 export const MyStream = () => {
-  const { myVideo, buttonState, setButtonState, toggleMic, toggleVideo } =
+  const { myVideo, buttonState, setButtonState, toggleMic, toggleVideo, textChannel } =
     usePeer();
+
   const [loading, setLoading] = useState(false);
+  const [mirror, setMirror] = useState(false);
+
+  // propagate mirror state use DATA_MAP for this !Important
 
   const toggleMyMicState = async () => {
     if (buttonState.myMic) {
@@ -90,6 +95,25 @@ export const MyStream = () => {
     }
   };
 
+  const toggleMirror = () => {
+
+    let data = {};
+
+    if(mirror){
+      data.type = DATA_TYPE.MIRROR_OFF;
+    }else {
+      data.type = DATA_TYPE.MIRROR_ON;
+    }
+
+    setMirror((prev) => !prev);
+
+    try {
+      textChannel.current.send(data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <Wrapper>
       <MyVideo
@@ -98,7 +122,11 @@ export const MyStream = () => {
         muted
         width="100px"
         height="130px"
+        className={mirror ? "mirror" : ""}
       ></MyVideo>
+      <button onClick={toggleMirror}>
+        {mirror ? "Mirror off" : "Mirror on"}
+      </button>
       <ControlWrapper>
         <Button variant="end" onClick={toggleMyMicState} disabled={loading}>
           {buttonState.myMic ? "Mute" : "Unmute"}
