@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { usePeer } from "../../context/Context";
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,13 +43,17 @@ const MyVideo = styled.video`
 `;
 
 export const MyStream = () => {
+
+  const {myVideo} = usePeer();
+
   return (
     <Wrapper>
       <MyVideo
+        ref={myVideo}
         autoPlay
+        muted
         width="100px"
         height="130px"
-        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4"
       ></MyVideo>
 	  <ControlWrapper>
         <Button variant="end">Mute</Button>

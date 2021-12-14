@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { usePeer } from "../../context/Context";
 
 const Wrapper = styled.div`
   position: fixed;
@@ -46,7 +48,105 @@ const SelectorWrapper = styled.div`
   justify-content: space-around;
 `;
 
+const replaceStream = (peerConnection, mediaStream) => {
+  peerConnection.getSenders().forEach((sender) => {
+    if (sender.track.kind === "audio") {
+      if (mediaStream.getAudioTracks().length > 0) {
+        sender.replaceTrack(mediaStream.getAudioTracks()[0]);
+      }
+    }
+    if (sender.track.kind === "video") {
+      if (mediaStream.getVideoTracks().length > 0) {
+        sender.replaceTrack(mediaStream.getVideoTracks()[0]);
+      }
+    }
+  });
+};
+
 export const Settings = () => {
+  const [cameraOptionList, setCameraOptionList] = useState([]);
+  const [micOptionList, setMicOptionList] = useState([]);
+
+  const {
+    setCameraDeviceId,
+    setMicDeviceId,
+    cameraDeviceId,
+    micDeviceId,
+    myVideo,
+    connection,
+  } = usePeer();
+
+  useEffect(() => {
+    (async () => {
+      await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameraList = devices.filter((obj) => obj.kind === "videoinput");
+      const micList = devices.filter((obj) => obj.kind === "audioinput");
+
+      setCameraOptionList(cameraList);
+      setMicOptionList(micList);
+
+      setCameraDeviceId(cameraList[0].deviceId);
+      setMicDeviceId(micList[0].deviceId);
+    })();
+  }, []);
+
+  const handleCameraChange = async (e) => {
+    const cameraId = e.target.value;
+    setCameraDeviceId(cameraId);
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { deviceId: cameraId },
+      audio: { deviceId: micDeviceId },
+    });
+    myVideo.current.srcObject = stream;
+    try {
+      replaceStream(connection.current.peerConnection, stream);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleMicChange = async (e) => {
+    const micId = e.target.value;
+    setMicDeviceId(micId);
+
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { deviceId: cameraDeviceId },
+      audio: { deviceId: micId },
+    });
+    myVideo.current.srcObject = stream;
+    try {
+      replaceStream(connection.current.peerConnection, stream);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const renderCameraOptions = () => {
+    const list = [];
+    cameraOptionList.forEach((camera) => {
+      list.push(
+        <option key={camera.deviceId} value={camera.deviceId}>
+          {camera.label}
+        </option>
+      );
+    });
+    return list;
+  };
+
+  const renderMicOptions = () => {
+    const list = [];
+    micOptionList.forEach((mic) => {
+      list.push(
+        <option key={mic.deviceId} value={mic.deviceId}>
+          {mic.label}
+        </option>
+      );
+    });
+    return list;
+  };
+
   return (
     <Wrapper>
       <ControlWrapper>
@@ -56,11 +156,15 @@ export const Settings = () => {
       <SelectorWrapper>
         <Label htmlFor="select-camera">
           Camera:
-          <Select id="select-camera"></Select>
+          <Select id="select-camera" onChange={handleCameraChange}>
+            {renderCameraOptions()}
+          </Select>
         </Label>
         <Label htmlFor="select-mic">
           Mic:
-          <Select id="select-mic"></Select>
+          <Select id="select-mic" onChange={handleMicChange}>
+            {renderMicOptions()}
+          </Select>
         </Label>
       </SelectorWrapper>
     </Wrapper>

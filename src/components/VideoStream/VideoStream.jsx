@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { usePeer } from "../../context/Context";
 import { MyStream } from "./MyStream";
 
 const Wrapper = styled.div`
@@ -14,10 +15,6 @@ const Wrapper = styled.div`
   height: 50vh;
   max-height: 400px;
   position: relative;
-`;
-
-const Label = styled.label`
-  font-size: smaller;
 `;
 
 const Button = styled.button`
@@ -49,10 +46,11 @@ const PeerVideo = styled.video`
 `;
 
 export const VideoStream = () => {
+  const { peerVideo } = usePeer();
+
   return (
     <Wrapper>
-
-	  <MyStream />
+      <MyStream />
 
       <ControlWrapper>
         <Button variant="end">End</Button>
@@ -60,14 +58,11 @@ export const VideoStream = () => {
       </ControlWrapper>
 
       <PeerVideo
+        ref={peerVideo}
         autoPlay
         width="400px"
         height="200px"
-        src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
       ></PeerVideo>
-
     </Wrapper>
   );
 };
-
-// http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4

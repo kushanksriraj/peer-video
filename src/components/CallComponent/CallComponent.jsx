@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { usePeer } from "../../context/Context";
 
 const Wrapper = styled.div`
   display: flex;
@@ -34,11 +35,20 @@ const Button = styled.button`
 `;
 
 export const CallComponent = () => {
+  const { username, setUsername, callOnClick } = usePeer();
+
+  const updateUsername = (e) => setUsername(e.target.value);
+
   return (
     <Wrapper>
       <Label htmlFor="name">Enter name:</Label>
-      <TextField type="text" id="name"  />
-      <Button>Call 📞</Button>
+      <TextField
+        type="text"
+        id="name"
+        value={username}
+        onChange={updateUsername}
+      />
+      <Button onClick={callOnClick}>Call 📞</Button>
     </Wrapper>
   );
 };

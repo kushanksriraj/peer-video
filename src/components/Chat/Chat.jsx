@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { usePeer } from "../../context/Context";
 
 const Wrapper = styled.div`
   border: 1px solid black;
@@ -31,24 +32,6 @@ const Button = styled.button`
   width: 20px;
   cursor: pointer;
 `;
-
-const state = [
-  {
-    text: "Hello 👋👋",
-    translation: "Heyaaa 👋👋",
-  },
-  {
-    text: "There",
-    translation: "Eto",
-  },
-  {
-    text: "Me",
-    translation: "Mya",
-  },
-  {
-    text: "Just text",
-  },
-];
 
 const ScrollArea = styled.div`
   height: fit-content;
@@ -83,7 +66,7 @@ const Translation = styled.div`
 export const Chat = () => {
   const lastRef = useRef(null);
 
-  const [messageList, setState] = useState(state);
+  const { messageList } = usePeer();
 
   useEffect(() => {
     if (lastRef.current) {
@@ -110,7 +93,7 @@ export const Chat = () => {
 
     const isTranslation = last?.translation;
 
-    list.push(
+    last && list.push(
       <Bubble ref={lastRef}>
         {isTranslation && <Translation>{last.translation}</Translation>}
         <Text isTranslation={isTranslation}>{last.text}</Text>
@@ -123,19 +106,8 @@ export const Chat = () => {
     <Wrapper>
       <ScrollArea className="scroll-hide">{renderBubbles()}</ScrollArea>
       <TextField type="text" />
-      <Button
-        onClick={() =>
-          setState((prev) => [
-            ...prev,
-            {
-              text: "New one!!",
-              translation: "Nya une",
-            },
-          ])
-        }
-      >
-        &gt;
-      </Button>
+      {/* Show typing based on isTyping */}
+      <Button onClick={() => {}}>&gt;</Button>
     </Wrapper>
   );
 };
