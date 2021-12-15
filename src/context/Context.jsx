@@ -46,6 +46,7 @@ export const ContextProvider = ({ children }) => {
   const [micDeviceId, setMicDeviceId] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [cameraDeviceId, setCameraDeviceId] = useState(null);
+  const [roomId, setRoomId] = useState("");
   const [buttonState, setButtonState] = useState({
     myMic: true,
     peerAudio: true,
@@ -128,17 +129,15 @@ export const ContextProvider = ({ children }) => {
   }, []);
 
   async function handleMessage(data) {
-
     if (data.type === DATA_TYPE.MIRROR_ON) {
-      peerVideo.current.className = 'mirror';
+      peerVideo.current.className = "mirror";
       return;
     }
 
     if (data.type === DATA_TYPE.MIRROR_OFF) {
-      peerVideo.current.className = '';
+      peerVideo.current.className = "";
       return;
     }
-
 
     if (data.type === DATA_TYPE.TYPING_STARTED) {
       setIsTyping(true);
@@ -152,7 +151,6 @@ export const ContextProvider = ({ children }) => {
 
     if (data.type === DATA_TYPE.MESSAGE) {
       let text = decode(data.text);
-      console.log("HERE", translateState.current.state);
       if (translateState.current.state) {
         const url = getTranslationURL(text);
         const res = await fetch(url);
@@ -186,6 +184,7 @@ export const ContextProvider = ({ children }) => {
     socket.emit("call", {
       username,
       id: myPeerId,
+      roomId,
     });
   };
 
@@ -296,6 +295,12 @@ export const ContextProvider = ({ children }) => {
     }
   }
 
+  const joinRoom = () => {
+    socket.emit("join-room", {
+      roomId,
+    });
+  };
+
   return (
     <PeerContext.Provider
       value={{
@@ -323,7 +328,10 @@ export const ContextProvider = ({ children }) => {
         setButtonState,
         toggleMic,
         toggleVideo,
-        textChannel
+        textChannel,
+        roomId,
+        setRoomId,
+        joinRoom,
       }}
     >
       {children}

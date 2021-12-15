@@ -6,7 +6,8 @@ export const YANDEX_TRANSLATE_URL =
 
 export const DB_API = "https://peer-db.kushanksriraj.repl.co/";
 
-export const SOCKET_URL = "https://peer-socket-1.kushanksriraj.repl.co";
+// export const SOCKET_URL = "https://peer-socket-1.kushanksriraj.repl.co";
+export const SOCKET_URL = "https://peer-socket-4.kushanksriraj.repl.co";
 
 export const PEER_SERVER_URL = "peer-server.kushanksriraj.repl.co";
 export const PEER_SERVER_PORT = 8080;

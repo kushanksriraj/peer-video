@@ -2,9 +2,11 @@ import styled from "styled-components";
 import { usePeer } from "../../context/Context";
 
 const Wrapper = styled.div`
-  display: flex;
+  /* display: flex; */
   justify-content: center;
   align-items: center;
+  text-align: center;
+
 `;
 
 const TextField = styled.input`
@@ -35,20 +37,34 @@ const Button = styled.button`
 `;
 
 export const CallComponent = () => {
-  const { username, setUsername, callOnClick } = usePeer();
+  const { username, setUsername, callOnClick, roomId, setRoomId, joinRoom } =
+    usePeer();
 
   const updateUsername = (e) => setUsername(e.target.value);
+  const updateRoomId = (e) => setRoomId(e.target.value);
 
   return (
     <Wrapper>
-      <Label htmlFor="name">Enter name:</Label>
-      <TextField
-        type="text"
-        id="name"
-        value={username}
-        onChange={updateUsername}
-      />
-      <Button onClick={callOnClick}>Call 📞</Button>
+      <Wrapper>
+        <Label htmlFor="room">Enter Room Id:</Label>
+        <TextField
+          type="text"
+          id="room"
+          value={roomId}
+          onChange={updateRoomId}
+        />
+        <Button onClick={joinRoom}>Join</Button>
+      </Wrapper>
+      <Wrapper>
+        <Label htmlFor="name">Enter name:</Label>
+        <TextField
+          type="text"
+          id="name"
+          value={username}
+          onChange={updateUsername}
+        />
+        <Button onClick={callOnClick}>Call 📞</Button>
+      </Wrapper>
     </Wrapper>
   );
 };
