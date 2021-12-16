@@ -5,6 +5,7 @@ const Wrapper = styled.div`
   padding: 1rem;
   text-align: center;
   font-weight: bold;
+  height: 60px
 `;
 
 export const Heading = () => {

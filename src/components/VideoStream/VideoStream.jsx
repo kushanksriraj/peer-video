@@ -12,37 +12,41 @@ const Wrapper = styled.div`
   border-radius: 5px;
   background-color: var(--primary);
   color: white;
-  height: 50vh;
-  max-height: 400px;
+  height: 60vh;
+  max-height: 1200px;
   position: relative;
 `;
 
 const Button = styled.button`
   border: none;
   border-radius: 2px;
-  font-size: 10px;
+  font-size: 0.70rem;
   font-weight: bold;
   display: inline-block;
-  width: 56px;
-  height: 18px;
+  width: 4rem;
+  height: 1.5rem;
   cursor: pointer;
   background-color: ${(props) =>
-    props.variant === "end" ? "red" : "var(--primary)"};
+    props.variant === "end" ? "red" : "gray"};
   color: white;
   margin: 0.25rem;
 `;
 
 const ControlWrapper = styled.div`
   position: absolute;
-  top: -30px;
-  left: 0;
-  border: 1px solid red;
+  top: 5px;
+  left: 5px;
+  border: 1px solid var(--primary);
   border-radius: 2px;
   display: flex;
 `;
 
 const PeerVideo = styled.video`
   object-fit: contain;
+  width: 90%;
+  min-width: 90vw;
+  height: 90%;
+  max-height: 70vh;
 `;
 
 export const VideoStream = () => {
@@ -82,8 +86,6 @@ export const VideoStream = () => {
       <PeerVideo
         ref={peerVideo}
         autoPlay
-        width="400px"
-        height="200px"
       ></PeerVideo>
     </Wrapper>
   );

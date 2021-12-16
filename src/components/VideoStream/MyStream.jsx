@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { usePeer } from "../../context/Context";
-import {DATA_TYPE} from '../../helper';
+import { DATA_TYPE } from "../../helper";
 
 const Wrapper = styled.div`
   display: flex;
@@ -10,22 +10,24 @@ const Wrapper = styled.div`
   border-radius: 5px;
   background-color: var(--primary);
   color: white;
-  height: 20vh;
-  max-height: 140px;
-  width: 110px;
+  padding: 0.5rem 0;
+  max-height: 160px;
+  width: 200px;
+  max-width: 35vw;
   position: absolute;
   top: 0px;
   right: 0px;
+  z-index: 50;
 `;
 
 const Button = styled.button`
   border: none;
   border-radius: 2px;
-  font-size: 8px;
+  font-size: 0.7rem;
   font-weight: bold;
   display: inline-block;
-  width: 50px;
-  height: 18px;
+  width: 4rem;
+  height: 1.5rem;
   cursor: pointer;
   background-color: ${(props) =>
     props.variant === "end" ? "red" : "var(--primary)"};
@@ -35,23 +37,29 @@ const Button = styled.button`
 
 const ControlWrapper = styled.div`
   position: absolute;
-  top: -25px;
+  top: -32px;
   right: 0;
   display: flex;
 `;
 
 const MyVideo = styled.video`
   object-fit: contain;
+  width: 95%;
 `;
 
 export const MyStream = () => {
-  const { myVideo, buttonState, setButtonState, toggleMic, toggleVideo, textChannel } =
-    usePeer();
+  const {
+    myVideo,
+    buttonState,
+    setButtonState,
+    toggleMic,
+    toggleVideo,
+    textChannel,
+    peerVideo
+  } = usePeer();
 
   const [loading, setLoading] = useState(false);
   const [mirror, setMirror] = useState(false);
-
-  // propagate mirror state use DATA_MAP for this !Important
 
   const toggleMyMicState = async () => {
     if (buttonState.myMic) {
@@ -96,13 +104,14 @@ export const MyStream = () => {
   };
 
   const toggleMirror = () => {
-
     let data = {};
 
-    if(mirror){
+    if (mirror) {
       data.type = DATA_TYPE.MIRROR_OFF;
-    }else {
+      myVideo.current.classList.remove("mirror");
+    } else {
       data.type = DATA_TYPE.MIRROR_ON;
+      myVideo.current.classList.add("mirror");
     }
 
     setMirror((prev) => !prev);
@@ -120,14 +129,11 @@ export const MyStream = () => {
         ref={myVideo}
         autoPlay
         muted
-        width="100px"
-        height="130px"
-        className={mirror ? "mirror" : ""}
       ></MyVideo>
-      <button onClick={toggleMirror}>
-        {mirror ? "Mirror off" : "Mirror on"}
-      </button>
       <ControlWrapper>
+        <Button onClick={toggleMirror}>
+          {mirror ? "Mirror off" : "Mirror on"}
+        </Button>
         <Button variant="end" onClick={toggleMyMicState} disabled={loading}>
           {buttonState.myMic ? "Mute" : "Unmute"}
         </Button>

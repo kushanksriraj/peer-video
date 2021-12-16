@@ -2,25 +2,30 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { usePeer } from "../../context/Context";
 import { replaceStream } from "../../helper";
+import { Footer } from "../Footer";
 
 const Wrapper = styled.div`
   position: fixed;
   bottom: 0;
-  width: calc(100% - 0.5rem);
-  border: 1px solid var(--primary);
-  border-radius: 2px;
+  width: 100%;
+  max-width: 1200px;
+  border-top-width: 1px;
+  border-color: black;
+  border-style: solid;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
   padding: 0.5rem 0.25rem;
-  margin: 0.25rem;
 `;
 
 const Button = styled.button`
   border: none;
   border-radius: 2px;
-  font-size: 10px;
+  font-size: 0.75rem;
   font-weight: bold;
   display: inline-block;
-  width: 95px;
-  height: 25px;
+  width: 7rem;
+  height: 2rem;
   cursor: pointer;
   background-color: var(--primary);
   color: white;
@@ -37,16 +42,19 @@ const Label = styled.label`
   display: inline-block;
   padding-right: 0.5rem;
   cursor: pointer;
+  font-weight: bold;
 `;
 
 const Select = styled.select`
   margin-left: 0.5rem;
   cursor: pointer;
+  max-width: 120px;
 `;
 
 const SelectorWrapper = styled.div`
   display: flex;
   justify-content: space-around;
+  width: 100%;
 `;
 
 export const Settings = () => {
@@ -58,7 +66,7 @@ export const Settings = () => {
     myVideo,
     connection,
     translateState,
-    buttonState
+    buttonState,
   } = usePeer();
 
   const [micOptionList, setMicOptionList] = useState([]);
@@ -173,6 +181,7 @@ export const Settings = () => {
           </Select>
         </Label>
       </SelectorWrapper>
+      <Footer />
     </Wrapper>
   );
 };

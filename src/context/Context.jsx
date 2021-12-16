@@ -41,12 +41,12 @@ export const ContextProvider = ({ children }) => {
   const [username, setUsername] = useState("");
   const [myPeerId, setMyPeerId] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
-  const [mirror, setMirror] = useState(false);
   const [messageList, setMessageList] = useState([]);
   const [micDeviceId, setMicDeviceId] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [cameraDeviceId, setCameraDeviceId] = useState(null);
   const [roomId, setRoomId] = useState("");
+  const [isJoinedRoom, setIsJoinedRoom] = useState(false);
   const [buttonState, setButtonState] = useState({
     myMic: true,
     peerAudio: true,
@@ -84,6 +84,9 @@ export const ContextProvider = ({ children }) => {
             connection.current = call;
             call.on("stream", function (remoteStream) {
               peerVideo.current.srcObject = remoteStream;
+              if (call?.open) {
+                setIsConnected(true);
+              }
             });
           },
           function (err) {
@@ -113,6 +116,9 @@ export const ContextProvider = ({ children }) => {
           call.on("stream", function (remoteStream) {
             peerVideo.current.srcObject = remoteStream;
           });
+          if (call?.open) {
+            setIsConnected(true);
+          }
         },
         function (err) {
           console.log("Failed to get local stream", err);
@@ -128,14 +134,22 @@ export const ContextProvider = ({ children }) => {
     });
   }, []);
 
+  useEffect(() => {
+    socket.on("join-room-success", (data) => {
+      if (data?.success) {
+        setIsJoinedRoom(true);
+      }
+    });
+  });
+
   async function handleMessage(data) {
     if (data.type === DATA_TYPE.MIRROR_ON) {
-      peerVideo.current.className = "mirror";
+      peerVideo.current.classList.add("mirror");      
       return;
     }
 
     if (data.type === DATA_TYPE.MIRROR_OFF) {
-      peerVideo.current.className = "";
+      peerVideo.current.classList.remove("mirror");
       return;
     }
 
@@ -150,6 +164,7 @@ export const ContextProvider = ({ children }) => {
     }
 
     if (data.type === DATA_TYPE.MESSAGE) {
+
       let text = decode(data.text);
       if (translateState.current.state) {
         const url = getTranslationURL(text);
@@ -164,6 +179,8 @@ export const ContextProvider = ({ children }) => {
             {
               text: eng,
               translation: text,
+              from: data.username,
+              time: data.timeStamp
             },
           ]);
         }
@@ -173,6 +190,8 @@ export const ContextProvider = ({ children }) => {
             ...prev,
             {
               text,
+              from: data.username,
+              time: data.timeStamp
             },
           ]);
         }
@@ -180,7 +199,9 @@ export const ContextProvider = ({ children }) => {
     }
   }
 
-  const callOnClick = () => {
+  const callOnClick = (e) => {
+    e.preventDefault();
+
     socket.emit("call", {
       username,
       id: myPeerId,
@@ -200,6 +221,8 @@ export const ContextProvider = ({ children }) => {
     const data = {
       type: DATA_TYPE.MESSAGE,
       from: myPeerId,
+      username: username,
+      timeStamp: new Date().getUTCMilliseconds(),
       text: encode(text),
     };
     try {
@@ -295,7 +318,8 @@ export const ContextProvider = ({ children }) => {
     }
   }
 
-  const joinRoom = () => {
+  const joinRoom = (e) => {
+    e.preventDefault();
     socket.emit("join-room", {
       roomId,
     });
@@ -332,6 +356,7 @@ export const ContextProvider = ({ children }) => {
         roomId,
         setRoomId,
         joinRoom,
+        isJoinedRoom,
       }}
     >
       {children}
