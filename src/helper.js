@@ -2,7 +2,9 @@ export const API_KEY = process.env.REACT_APP_API_KEY;
 export const YANDEX_TRANSLATE_URL = process.env.REACT_APP_YANDEX_TRANSLATE_URL;
 export const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
 export const PEER_SERVER_URL = process.env.REACT_APP_PEER_SERVER_URL;
-export const PEER_SERVER_PORT = process.env.REACT_APP_PEER_SERVER_PORT;
+export const PEER_SERVER_PORT = Number.parseInt(
+  process.env.REACT_APP_PEER_SERVER_PORT
+);
 export const PEER_SERVER_PATH = process.env.REACT_APP_PEER_SERVER_PATH;
 export const STUN_URL = process.env.REACT_APP_STUN_URL;
 export const TURN_URL = process.env.REACT_APP_TURN_URL;
@@ -14,7 +16,7 @@ export const DATA_TYPE = {
   TYPING_STARTED: "TYPING_STARTED",
   TYPING_STOPPED: "TYPING_STOPPED",
   MIRROR_ON: "MIRROR_ON",
-  MIRROR_OFF: "MIRROR_OFF"
+  MIRROR_OFF: "MIRROR_OFF",
 };
 
 export const decode = (str) => {
