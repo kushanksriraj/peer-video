@@ -57,7 +57,6 @@ export const MyStream = () => {
     toggleMic,
     toggleVideo,
     textChannel,
-    peerVideo
   } = usePeer();
 
   const [loading, setLoading] = useState(false);
