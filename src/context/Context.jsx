@@ -72,7 +72,7 @@ export const ContextProvider = ({ children }) => {
 
   useEffect(() => {
     socket.on("peer-id", (data) => {
-      const res = window.confirm("Accept call from " + data.username + " ?");
+      const res = window.confirm("Accept call from " + data.username + "?");
 
       if (res) {
         const otherId = data.id;

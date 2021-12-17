@@ -59,12 +59,12 @@ const Bubble = styled.div`
 
 const Text = styled.div`
   margin-top: -2px;
-  font-size: ${(props) => (props.isTranslation ? "12px" : "14px")};
+  font-size: ${(props) => (props.isTranslation ? "14px" : "14px")};
   color: ${(props) => (props.isTranslation ? "#626262" : "black")};
 `;
 
 const Translation = styled.div`
-  font-size: 12px;
+  font-size: 14px;
 `;
 
 const Form = styled.form`
