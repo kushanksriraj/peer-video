@@ -5,7 +5,7 @@ import { replaceStream } from "../../helper";
 import { Footer } from "../Footer";
 
 const Wrapper = styled.div`
-  
+  margin-top: 3rem;
   bottom: 0;
   width: 100%;
   max-width: 1200px;
