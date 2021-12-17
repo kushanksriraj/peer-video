@@ -33,6 +33,7 @@ const Button = styled.button`
     props.variant === "end" ? "red" : "var(--primary)"};
   color: white;
   margin: 0.2rem;
+  margin-left: 0.5rem;
 `;
 
 const ControlWrapper = styled.div`

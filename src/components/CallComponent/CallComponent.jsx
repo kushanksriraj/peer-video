@@ -13,8 +13,8 @@ const Wrapper = styled.div`
   padding-bottom: 1.75rem;
   width: 70%;
   max-width: 400px;
-  height: 40%;
-  max-height: 300px;
+  height: 50%;
+  max-height: 250px;
   position: relative;
   background-color: white;
   z-index: 200;
@@ -48,11 +48,11 @@ const Button = styled.button`
   border: none;
   color: white;
   border-radius: 2px;
-  font-size: 12px;
+  font-size: 0.7rem;
   font-weight: bold;
   display: inline-block;
-  width: 60px;
-  height: 22px;
+  width: 4rem;
+  height: 1.5rem;
   cursor: pointer;
   ${(props) =>
     props.disabled &&

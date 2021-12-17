@@ -30,6 +30,7 @@ const Button = styled.button`
     props.variant === "end" ? "red" : "gray"};
   color: white;
   margin: 0.25rem;
+  margin-right: 0.75rem;
 `;
 
 const ControlWrapper = styled.div`
