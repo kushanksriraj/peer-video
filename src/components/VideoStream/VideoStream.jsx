@@ -40,6 +40,7 @@ const ControlWrapper = styled.div`
   border: 1px solid var(--primary);
   border-radius: 2px;
   display: flex;
+  z-index: 30;
 `;
 
 const PeerVideo = styled.video`

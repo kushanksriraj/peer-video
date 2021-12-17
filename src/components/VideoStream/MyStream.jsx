@@ -41,6 +41,7 @@ const ControlWrapper = styled.div`
   top: -32px;
   right: 0;
   display: flex;
+  z-index: 30;
 `;
 
 const MyVideo = styled.video`
