@@ -1,23 +1,13 @@
-export const API_KEY =
-  "trnsl.1.1.20211212T161217Z.0831f8bca96760d5.2c7f958d368ca87a6c7382819e8a13461ccdde94";
-
-export const YANDEX_TRANSLATE_URL =
-  "https://translate.yandex.net/api/v1.5/tr.json/translate";
-
-export const DB_API = "https://peer-db.kushanksriraj.repl.co/";
-
-// export const SOCKET_URL = "https://peer-socket-1.kushanksriraj.repl.co";
-export const SOCKET_URL = "https://peer-socket-4.kushanksriraj.repl.co";
-
-export const PEER_SERVER_URL = "peer-server.kushanksriraj.repl.co";
-export const PEER_SERVER_PORT = 8080;
-export const PEER_SERVER_PATH = "/signaling";
-
-export const STUN_URL = "stun:numb.viagenie.ca:3478";
-export const TURN_URL = "turn:numb.viagenie.ca:3478";
-
-export const TURN_USERNAME = "shreeraj157@gmail.com";
-export const TURN_CREDENTIAL = "Qwerty@123";
+export const API_KEY = process.env.REACT_APP_API_KEY;
+export const YANDEX_TRANSLATE_URL = process.env.REACT_APP_YANDEX_TRANSLATE_URL;
+export const SOCKET_URL = process.env.REACT_APP_SOCKET_URL;
+export const PEER_SERVER_URL = process.env.REACT_APP_PEER_SERVER_URL;
+export const PEER_SERVER_PORT = process.env.REACT_APP_PEER_SERVER_PORT;
+export const PEER_SERVER_PATH = process.env.REACT_APP_PEER_SERVER_PATH;
+export const STUN_URL = process.env.REACT_APP_STUN_URL;
+export const TURN_URL = process.env.REACT_APP_TURN_URL;
+export const TURN_USERNAME = process.env.REACT_APP_TURN_USERNAME;
+export const TURN_CREDENTIAL = process.env.REACT_APP_TURN_CREDENTIAL;
 
 export const DATA_TYPE = {
   MESSAGE: "MESSAGE",
